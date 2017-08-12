@@ -69,7 +69,7 @@ end
 function love.update(dt)
 	test = test + love.timer.getDelta()
 	if test >= 1 then
-		backgroundColor = getRgb(backgroundColors[math.random(1, #backgroundColors)])
+		backgroundColor = getRgb(backgroundColors[math.random(1, #backgroundColors)]) -- for future: cannot be repeated twice in a row
 		test = 0
 	end
 end
