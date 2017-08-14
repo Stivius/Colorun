@@ -1,35 +1,38 @@
-Rectangle = {}
-Rectangle.__index = Rectangle
-
-function Rectangle:create(x, y, width, height, color, key)
-	local rect = {}
-   	setmetatable(rect, Rectangle)
-   	rect.x = x
-   	rect.y = y
-   	rect.width = width
-   	rect.height = height
-   	rect.color = getRgb(color)
-   	rect.key = key
-   	rect.speed = 20
-
-   	return rect
-end
-
-function Rectangle:draw()
-	love.graphics.setColor(self.color.red, self.color.green, self.color.blue)
-    love.graphics.rectangle("fill", self.x, self.y, self.width, self.height)
-end
-
-function Rectangle:move()
-	self.x = self.x + self.speed
-end
+require "rectangle"
 
 function love.keypressed(key, scancode, isrepeat)
-	for i =1, playersCount do
-		if key == rectangles[i].key then 
-			rectangles[i]:move()
+	if not gamePause then
+		for i =1, playersCount do
+			if key == rectangles[i].key then 
+				rectangles[i]:move()
+			end
 		end
 	end
+end
+
+function love.keyreleased(key, scancodep)
+	if key == "f" then
+    	if not love.window.getFullscreen() then
+    		width, height = love.window.getMode()
+    		love.window.setFullscreen(true)
+    	else
+    		love.window.setFullscreen(false)
+    		love.window.setMode(width, height)
+    	end
+   	end
+   	if key == "x" then
+    	love.event.quit()
+   	end
+   	if key == "s" then
+    	if music:isPlaying() then
+    		music:stop()
+    	else
+    		music:play()
+    	end
+   	end
+   	if key == "p" then
+    	gamePause = not gamePause
+   	end
 end
 
 function initSettings()
@@ -62,6 +65,8 @@ function parse(key, value)
 		players[7].key = value
 	elseif key == "PinkKey" then
 		players[8].key = value
+	elseif key == "AudioFile" then
+		audioFile = value
 	end
 end
 
@@ -76,6 +81,9 @@ end
 
 function love.load()
 	test = 0
+	gamePause = false
+	love.graphics.setFont(love.graphics.newFont(100))
+
 	math.randomseed(os.time())
 
 	backgroundColors = {"#b9f9e8", "#b9ddf9", "#f28ca3", "#f3a5cd", "#f9dab9", "#a5bef2", "#8fd1cd", "#e2f0fd", "#f9cab9", "#ffa87f"}
@@ -92,6 +100,10 @@ function love.load()
 	players[8] = {["color"] = "#f01fdf"} -- pink
 
 	initSettings()
+	music = love.audio.newSource(audioFile)
+    music:setLooping(true)
+
+    -- music:play()
 
 	rectangles = {}
 
@@ -116,5 +128,12 @@ function love.draw()
 	love.graphics.setBackgroundColor(backgroundColor.red, backgroundColor.green, backgroundColor.blue)
 	for i = 1, playersCount do
 		rectangles[i]:draw()
+	end
+	love.graphics.setColor(0, 0, 0)
+	love.graphics.setLineWidth(7)
+	love.graphics.line(750, 0, 750, 600)
+
+	if gamePause then
+		love.graphics.print("PAUSE", 400, 300)
 	end
 end
