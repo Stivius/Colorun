@@ -18,14 +18,14 @@
 - Since game can switch from windowed, to fullscreen, and be played on different screen sizes, everything must be
 proportional : block sizes, position of finish line from the right, position of blocks from left, distance between every steps, distance between each blocks vertically
 - Keys:
-  * If the P button is pressed, the game is paused.
-  * If the F button is pressed, the game changed from fullscreen, to windowed. (default is fullscreen, setting
-  * If the X button is pressed, game exits.
-  * If the S button is pressed, sound is off/on (default is on, setting)
-  * If the M button is pressed, menu appears.
+    * If the P button is pressed, the game is paused.
+    * If the F button is pressed, the game changed from fullscreen, to windowed. (default is fullscreen, setting
+    * If the X button is pressed, game exits.
+    * If the S button is pressed, sound is off/on (default is on, setting)
+    * If the M button is pressed, menu appears.
 - The menu will allow to :
-  * select the number of players (default is 4, setting)
-  * exit the menu
+    * select the number of players (default is 4, setting)
+    * exit the menu
 - To navigate the menu, arrow up and down are used. 
 - Pressing A to enter in the option, pressing A to validate the value of the option and 'exit' its edition. left and right arrows to change values of an option once 'in' it.
 
