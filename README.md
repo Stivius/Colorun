@@ -14,7 +14,6 @@
 - Size of array is therefore minimum 8 to cover one per player, setting)
 - Each block changes color at a random time: every X seconds (1 to 5 seconds, randomly , setting), all blocks would change colors randomly
 - At begining of a party, a small countdown is displayed: 3...2...1...GO
-- Player will have 3 seconds (setting) to see their blocks's color and start pressing the corresponding button.
 - Once one player reaches the finish line, party is over. A message is displayed to say "player X won the game" during 2 seconds (setting). A new party starts again with the countdown.
 - Keys:
     * ~~If the P button is pressed, the game is paused.~~
