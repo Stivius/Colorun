@@ -39,7 +39,7 @@ function love.update(dt)
 end
 
 function love.load()
-	love.graphics.setFont(love.graphics.newFont(100))
+	mainFont = love.graphics.newFont(100)
 	math.randomseed(os.time())
 
 	backgroundColors = {"#b9f9e8", "#b9ddf9", "#f28ca3", "#f3a5cd", "#f9dab9", "#a5bef2", "#8fd1cd", "#e2f0fd", "#f9cab9", "#ffa87f"}
@@ -49,22 +49,24 @@ function love.load()
 
 	playersCount = data.general.playersCount
 	countdown = data.general.countdown - 1
+	minSwapTime = data.general.minSwapTime
+	maxSwapTime = data.general.maxSwapTime
 
 	assert(data.colors._size == data.colorKeys._size)
 	assert(playersCount <= data.colors._size)
 
 	music = love.audio.newSource(data.general.audioFile)
     music:setLooping(true)
-    -- music:play()
+    music:play()
 
 	local playersColors = {}
-	for i = 1, data.colors._size do -- need to be fixed
+	for i = 1, data.colors._size do
 		playersColors[i] = Color:create(data.colors["color" .. i], data.colorKeys["colorKey" .. i])
 	end
 
     for i = 1, playersCount do
     	local num = math.random(1, #playersColors)
-    	players:addPlayer(i, playersColors[num])
+    	players:addPlayer(playersColors[num])
    		table.remove(playersColors, num)
    	end
 
@@ -84,7 +86,17 @@ function love.load()
 			drawCountdown = false
 			gamePause = false
 			timers:removeTimer("Countdown")
+			startSwapping()
 		end
+	end)
+end
+
+function startSwapping()
+	local swapTime = math.random(1, 5)
+	timers:addTimer("SwapRects", 1, false, function()
+		players:swap()
+		swapTime = math.random(1, 5)
+		timers["SwapRects"].duration = swapTime
 	end)
 end
 
@@ -96,6 +108,7 @@ function love.draw()
 
 	players:draw()
 
+	love.graphics.setFont(mainFont)
 	love.graphics.setColor(0, 0, 0)
 	if gamePause and not drawCountdown then
 		love.graphics.print("PAUSE", 400, 300)
