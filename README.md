@@ -2,7 +2,6 @@
 - ~~All settings are saves in a file settings.ini~~
 - ~~A race is won by a player when their block crosses the finish line.~~
 - ~~Each player (1 to 8, setting) is represented by a block.~~
-- ~~Since game can switch from windowed, to fullscreen, and be played on different screen sizes, everything must be proportional : block sizes, position of finish line from the right, position of blocks from left, distance between every steps, distance between each blocks vertically~~
 - ~~No two block can have same color (from an array $color = [ "white" => "#ffffff", green=> "#62c633", "blue" => "#2353ce", "black" => "000000", "red" => "#d61006", "yellow" => "#f2ee21", "cyan" => "#20f1e7", "pink" => "#f01fdf"]~~
 - ~~Each color corresponds to a letter from the keyboard ( array $key = [ "white" => "W", "green" => "G", "blue" => "B", "black" => "K", "red" => "R", "yellow" => "Y", "cyan" => "N", "pink" => "I" ], setting )~~
 - ~~Blocks are disposed in column, on the left of the screen, with a small margin-left from the border.~~
@@ -10,6 +9,7 @@
 - ~~To move their blocks to the right of the screen, players must therefore press the button which color corresponds to their block on the screen.~~
 - ~~A music is played in background. Music is fetched automatically from music.mp3, and is looped.~~
 - ~~Background of the window/screen is a plain color, changing every 1 second (setting). background color are from an array $bgcolor = [ "#b9f9e8","#b9ddf9","#f28ca3","#f3a5cd","#f9dab9","#a5bef2","#8fd1cd","#e2f0fd","#f9cab9","#ffa87f"]~~
+- Since game can switch from windowed, to fullscreen, and be played on different screen sizes, everything must be proportional : block sizes, position of finish line from the right, position of blocks from left, distance between every steps, distance between each blocks vertically
 - The number of the player is written on the blocks (adapt text color as per block color, black or white)
 - Size of array is therefore minimum 8 to cover one per player, setting)
 - Each block changes color at a random time: every X seconds (1 to 5 seconds, randomly , setting), all blocks would change colors randomly
