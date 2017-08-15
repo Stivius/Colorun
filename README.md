@@ -1,4 +1,4 @@
-- Every button has a color and every button sends a keystroke once pressed
+~~- Every button has a color and every button sends a keystroke once pressed~~
 - All settings are saves in a file settings.ini
 - A race is won by a player when their block crosses the finish line.
 - Each player (1 to 8, setting) is represented by a block. 
