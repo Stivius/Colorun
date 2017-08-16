@@ -4,6 +4,7 @@ Rectangle = {}
 Rectangle.__index = Rectangle
 
 local numberFont = love.graphics.newFont(20)
+local text = love.graphics.newText(numberFont)
 
 function Rectangle:create(x, y, width, height, rgb, key)
 	local rect = {}
@@ -27,8 +28,8 @@ function Rectangle:draw(number)
    else
       love.graphics.setColor(255, 255, 255)
    end
-   love.graphics.setFont(numberFont)
-   love.graphics.print(number, self.x + (self.width / 3), self.y + (self.height / 3))
+   text:set(number)
+   love.graphics.draw(text, self.x + ((self.width - text:getWidth())/2), self.y + ((self.height - text:getHeight())/2))
 end
 
 function Rectangle:move(number)

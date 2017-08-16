@@ -1,7 +1,9 @@
 local players = require "players"
 local timers = require "timers"
+
 require "color"
 require "ini_parser"
+require "message"
 
 function love.keypressed(key, scancode, isrepeat)
 	if not gamePause then
@@ -55,13 +57,14 @@ function love.load()
 	countdown = data.general.countdown - 1
 	minSwapTime = data.general.minSwapTime
 	maxSwapTime = data.general.maxSwapTime
+	restartTime = data.general.restartTime
 
 	assert(data.colors._size == data.colorKeys._size)
 	assert(playersCount <= data.colors._size)
 
 	music = love.audio.newSource(data.general.audioFile)
     music:setLooping(true)
-    -- music:play()
+    music:play()
 
     finishLineCoords = {750, 0, 750, 600}
     players:setFinishLine(finishLineCoords)
@@ -87,6 +90,9 @@ function love.load()
 	gameFinished = false
 	gamePause = true
 	drawCountdown = true
+	showWinMessage = false
+	winMessage = Message:create("", (800 - 300)/2, (600 - 150)/2, 300, 150)
+	textToDraw = love.graphics.newText(mainFont, "")
 
 	startCountdown()
 end
@@ -99,7 +105,7 @@ function startCountdown()
 			drawCountdown = false
 			gamePause = false
 			timers:removeTimer("Countdown")
-			-- startSwapping()
+			startSwapping()
 		end
 	end)
 end
@@ -113,11 +119,18 @@ function startSwapping()
 	end)
 end
 
+function stopSwapping()
+	timers:removeTimer("SwapRects")
+end
+
 function finishGame()
 	gameFinished = true
 	gamePause = true
 	showWinMessage = true
-	timers:addTimer("Restart", 3, true, function()
+	winMessage:setText("Player " .. players:winner() .. " won the game!")
+	stopSwapping()
+
+	timers:addTimer("Restart", restartTime, true, function()
 		showWinMessage = false
 		gameFinished = false
 		drawCountdown = true
@@ -134,22 +147,26 @@ function love.draw()
 
 	players:draw()
 
-	love.graphics.setFont(mainFont)
+	local width, height = love.window.getMode()
+
 	love.graphics.setColor(0, 0, 0)
 	if gamePause and not drawCountdown and not gameFinished then
-		love.graphics.print("PAUSE", 400, 300)
+		textToDraw:set("PAUSE")
+		love.graphics.draw(textToDraw, (width- textToDraw:getHeight())/2, (height - textToDraw:getHeight())/2)
 	end
 
 	if drawCountdown then
 		if countdown - 1 ~= 0 then
-			love.graphics.print(countdown - 1, 400, 300)
+			textToDraw:set(countdown - 1)
+			love.graphics.draw(textToDraw, (width - textToDraw:getHeight())/2, (height - textToDraw:getHeight())/2)
 		else
-			love.graphics.print("GO", 400, 300)
+			textToDraw:set("GO")
+			love.graphics.draw(textToDraw, (width - textToDraw:getHeight())/2, (height - textToDraw:getHeight())/2)
 		end
 	end
 
 	if showWinMessage then
-		love.graphics.print("Player " .. players:winner(), 400, 300)
+		winMessage:draw()
 	end
 
 end
