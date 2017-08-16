@@ -31,6 +31,13 @@ function Rectangle:draw(number)
    love.graphics.print(number, self.x + (self.width / 3), self.y + (self.height / 3))
 end
 
-function Rectangle:move()
+function Rectangle:move(number)
 	self.x = self.x + self.speed
+end
+
+function Rectangle:intersect(finishLineCoords)
+   if self.x + self.width > finishLineCoords.x1 then
+      return true
+   end
+   return false
 end

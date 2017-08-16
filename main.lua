@@ -6,6 +6,10 @@ require "ini_parser"
 function love.keypressed(key, scancode, isrepeat)
 	if not gamePause then
 		players:keypressed(key, scancode, isrepeat)
+		local wnr = players:winner()
+		if wnr then
+			finishGame()
+		end
 	end
 end
 
@@ -57,7 +61,10 @@ function love.load()
 
 	music = love.audio.newSource(data.general.audioFile)
     music:setLooping(true)
-    music:play()
+    -- music:play()
+
+    finishLineCoords = {750, 0, 750, 600}
+    players:setFinishLine(finishLineCoords)
 
 	local playersColors = {}
 	for i = 1, data.colors._size do
@@ -70,7 +77,6 @@ function love.load()
    		table.remove(playersColors, num)
    	end
 
-
 	timers:addTimer("BackgroundTimer", 1, false, function()
 		local oldBackgroundColor = backgroundColor
 		while backgroundColor == oldBackgroundColor do
@@ -78,15 +84,22 @@ function love.load()
 		end
 	end)
 
+	gameFinished = false
 	gamePause = true
 	drawCountdown = true
+
+	startCountdown()
+end
+
+function startCountdown()
+	countdown = data.general.countdown - 1
 	timers:addTimer("Countdown", 1, false, function()
 		countdown = countdown - 1
 		if countdown == 0 then
 			drawCountdown = false
 			gamePause = false
 			timers:removeTimer("Countdown")
-			startSwapping()
+			-- startSwapping()
 		end
 	end)
 end
@@ -100,17 +113,30 @@ function startSwapping()
 	end)
 end
 
+function finishGame()
+	gameFinished = true
+	gamePause = true
+	showWinMessage = true
+	timers:addTimer("Restart", 3, true, function()
+		showWinMessage = false
+		gameFinished = false
+		drawCountdown = true
+		startCountdown()
+		players:reset()
+	end)
+end
+
 function love.draw()
 	love.graphics.setBackgroundColor(backgroundColor.red, backgroundColor.green, backgroundColor.blue)
 	love.graphics.setColor(0, 0, 0)
 	love.graphics.setLineWidth(7)
-	love.graphics.line(750, 0, 750, 600)
+	love.graphics.line(finishLineCoords)
 
 	players:draw()
 
 	love.graphics.setFont(mainFont)
 	love.graphics.setColor(0, 0, 0)
-	if gamePause and not drawCountdown then
+	if gamePause and not drawCountdown and not gameFinished then
 		love.graphics.print("PAUSE", 400, 300)
 	end
 
@@ -121,4 +147,9 @@ function love.draw()
 			love.graphics.print("GO", 400, 300)
 		end
 	end
+
+	if showWinMessage then
+		love.graphics.print("Player " .. players:winner(), 400, 300)
+	end
+
 end
