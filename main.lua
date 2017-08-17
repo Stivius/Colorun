@@ -50,7 +50,6 @@ function love.update(dt)
 end
 
 function love.load()
-	mainFont = love.graphics.newFont(100)
 	math.randomseed(os.time())
 
 	backgroundColors = {"#b9f9e8", "#b9ddf9", "#f28ca3", "#f3a5cd", "#f9dab9", "#a5bef2", "#8fd1cd", "#e2f0fd", "#f9cab9", "#ffa87f"}
@@ -64,21 +63,20 @@ function love.load()
 
     initSettings()
 
-	playersCount = data.general.playersCount
 	countdown = data.general.countdown - 1
 	minSwapTime = data.general.minSwapTime
 	maxSwapTime = data.general.maxSwapTime
 	restartTime = data.general.restartTime
 
 	assert(data.colors._size == data.colorKeys._size)
-	assert(playersCount <= data.colors._size)
+	assert(data.general.playersCount <= data.colors._size)
 
 	local playersColors = {}
 	for i = 1, data.colors._size do
 		playersColors[i] = Color:create(data.colors["color" .. i], data.colorKeys["colorKey" .. i])
 	end
 
-    for i = 1, playersCount do
+    for i = 1, data.general.playersCount do
     	local num = math.random(1, #playersColors)
     	players:addPlayer(playersColors[num])
    		table.remove(playersColors, num)
@@ -86,7 +84,7 @@ function love.load()
 
 	local width, height = love.window.getMode()
 	winMessage = Message:create("", (width - 300)/2, (height - 150)/2, 300, 150)
-	infoTextToDraw = love.graphics.newText(mainFont, "")
+	infoTextToDraw = love.graphics.newText(love.graphics.newFont(100), "")
 
 	music = love.audio.newSource(data.general.audioFile)
     music:setLooping(true)
