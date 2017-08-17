@@ -62,8 +62,6 @@ function love.load()
 		end
 	end)
 
-
-
     initSettings()
 
 	playersCount = data.general.playersCount
@@ -103,7 +101,6 @@ end
 
 function startGame()
 	players:reset()
-	showWinMessage = false
 	gameFinished = false
 	gameBeingStarted = true
 	countdown = data.general.countdown - 1
@@ -135,7 +132,6 @@ end
 function finishGame()
 	gameFinished = true
 	gamePause = true
-	showWinMessage = true
 	winMessage:setText("Player " .. players:winner() .. " won the game!")
 	stopSwapping()
 
@@ -170,7 +166,7 @@ function love.draw()
 		end
 	end
 
-	if showWinMessage then
+	if gameFinished then
 		winMessage:draw()
 	end
 
