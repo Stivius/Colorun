@@ -35,8 +35,13 @@ function love.keyreleased(key, scancodep)
     		music:play()
     	end
    	end
-   	if key == "p" then
+   	if key == "p" and not gameFinished and not drawCountdown then
     	gamePause = not gamePause
+    	if gamePause then
+    		stopSwapping()
+    	else
+    		startSwapping()
+    	end
    	end
 end
 
@@ -91,7 +96,8 @@ function love.load()
 	gamePause = true
 	drawCountdown = true
 	showWinMessage = false
-	winMessage = Message:create("", (800 - 300)/2, (600 - 150)/2, 300, 150)
+	local width, height = love.window.getMode()
+	winMessage = Message:create("", (width - 300)/2, (height - 150)/2, 300, 150)
 	textToDraw = love.graphics.newText(mainFont, "")
 
 	startCountdown()
@@ -111,10 +117,10 @@ function startCountdown()
 end
 
 function startSwapping()
-	local swapTime = math.random(1, 5)
-	timers:addTimer("SwapRects", 1, false, function()
+	local swapTime = math.random(minSwapTime, maxSwapTime)
+	timers:addTimer("SwapRects", swapTime, false, function()
 		players:swap()
-		swapTime = math.random(1, 5)
+		swapTime = math.random(minSwapTime, maxSwapTime)
 		timers["SwapRects"].duration = swapTime
 	end)
 end
@@ -152,16 +158,16 @@ function love.draw()
 	love.graphics.setColor(0, 0, 0)
 	if gamePause and not drawCountdown and not gameFinished then
 		textToDraw:set("PAUSE")
-		love.graphics.draw(textToDraw, (width- textToDraw:getHeight())/2, (height - textToDraw:getHeight())/2)
+		love.graphics.draw(textToDraw, (width - textToDraw:getWidth())/2, (height - textToDraw:getHeight())/2)
 	end
 
 	if drawCountdown then
 		if countdown - 1 ~= 0 then
 			textToDraw:set(countdown - 1)
-			love.graphics.draw(textToDraw, (width - textToDraw:getHeight())/2, (height - textToDraw:getHeight())/2)
+			love.graphics.draw(textToDraw, (width - textToDraw:getWidth())/2, (height - textToDraw:getHeight())/2)
 		else
 			textToDraw:set("GO")
-			love.graphics.draw(textToDraw, (width - textToDraw:getHeight())/2, (height - textToDraw:getHeight())/2)
+			love.graphics.draw(textToDraw, (width - textToDraw:getWidth())/2, (height - textToDraw:getHeight())/2)
 		end
 	end
 
