@@ -35,7 +35,7 @@ function love.keyreleased(key, scancodep)
     		music:play()
     	end
    	end
-   	if key == "p" and not gameFinished and not drawCountdown then
+   	if key == "p" and not gameFinished and not gameBeingStarted then
     	gamePause = not gamePause
     	if gamePause then
     		stopSwapping()
@@ -55,6 +55,14 @@ function love.load()
 
 	backgroundColors = {"#b9f9e8", "#b9ddf9", "#f28ca3", "#f3a5cd", "#f9dab9", "#a5bef2", "#8fd1cd", "#e2f0fd", "#f9cab9", "#ffa87f"}
 	backgroundColor = getRgb(backgroundColors[math.random(1, #backgroundColors)])
+	timers:addTimer("BackgroundTimer", 1, false, function()
+		local oldBackgroundColor = backgroundColor
+		while backgroundColor == oldBackgroundColor do
+			backgroundColor = getRgb(backgroundColors[math.random(1, #backgroundColors)])
+		end
+	end)
+
+
 
     initSettings()
 
@@ -67,13 +75,6 @@ function love.load()
 	assert(data.colors._size == data.colorKeys._size)
 	assert(playersCount <= data.colors._size)
 
-	music = love.audio.newSource(data.general.audioFile)
-    music:setLooping(true)
-    music:play()
-
-    finishLineCoords = {750, 0, 750, 600}
-    players:setFinishLine(finishLineCoords)
-
 	local playersColors = {}
 	for i = 1, data.colors._size do
 		playersColors[i] = Color:create(data.colors["color" .. i], data.colorKeys["colorKey" .. i])
@@ -85,30 +86,32 @@ function love.load()
    		table.remove(playersColors, num)
    	end
 
-	timers:addTimer("BackgroundTimer", 1, false, function()
-		local oldBackgroundColor = backgroundColor
-		while backgroundColor == oldBackgroundColor do
-			backgroundColor = getRgb(backgroundColors[math.random(1, #backgroundColors)])
-		end
-	end)
-
-	gameFinished = false
-	gamePause = true
-	drawCountdown = true
-	showWinMessage = false
 	local width, height = love.window.getMode()
 	winMessage = Message:create("", (width - 300)/2, (height - 150)/2, 300, 150)
-	textToDraw = love.graphics.newText(mainFont, "")
+	infoTextToDraw = love.graphics.newText(mainFont, "")
 
-	startCountdown()
+	music = love.audio.newSource(data.general.audioFile)
+    music:setLooping(true)
+    music:play()
+
+	finishLineCoords = {750, 0, 750, 600}
+    players:setFinishLine(finishLineCoords)
+
+	gamePause = true
+	startGame()
 end
 
-function startCountdown()
+function startGame()
+	players:reset()
+	showWinMessage = false
+	gameFinished = false
+	gameBeingStarted = true
 	countdown = data.general.countdown - 1
+
 	timers:addTimer("Countdown", 1, false, function()
 		countdown = countdown - 1
 		if countdown == 0 then
-			drawCountdown = false
+			gameBeingStarted = false
 			gamePause = false
 			timers:removeTimer("Countdown")
 			startSwapping()
@@ -137,11 +140,7 @@ function finishGame()
 	stopSwapping()
 
 	timers:addTimer("Restart", restartTime, true, function()
-		showWinMessage = false
-		gameFinished = false
-		drawCountdown = true
-		startCountdown()
-		players:reset()
+		startGame()
 	end)
 end
 
@@ -156,18 +155,18 @@ function love.draw()
 	local width, height = love.window.getMode()
 
 	love.graphics.setColor(0, 0, 0)
-	if gamePause and not drawCountdown and not gameFinished then
-		textToDraw:set("PAUSE")
-		love.graphics.draw(textToDraw, (width - textToDraw:getWidth())/2, (height - textToDraw:getHeight())/2)
+	if gamePause and not gameBeingStarted and not gameFinished then
+		infoTextToDraw:set("PAUSE")
+		love.graphics.draw(infoTextToDraw, (width - infoTextToDraw:getWidth())/2, (height - infoTextToDraw:getHeight())/2)
 	end
 
-	if drawCountdown then
+	if gameBeingStarted then
 		if countdown - 1 ~= 0 then
-			textToDraw:set(countdown - 1)
-			love.graphics.draw(textToDraw, (width - textToDraw:getWidth())/2, (height - textToDraw:getHeight())/2)
+			infoTextToDraw:set(countdown - 1)
+			love.graphics.draw(infoTextToDraw, (width - infoTextToDraw:getWidth())/2, (height - infoTextToDraw:getHeight())/2)
 		else
-			textToDraw:set("GO")
-			love.graphics.draw(textToDraw, (width - textToDraw:getWidth())/2, (height - textToDraw:getHeight())/2)
+			infoTextToDraw:set("GO")
+			love.graphics.draw(infoTextToDraw, (width - infoTextToDraw:getWidth())/2, (height - infoTextToDraw:getHeight())/2)
 		end
 	end
 
