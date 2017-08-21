@@ -13,7 +13,7 @@
 - ~~The number of the player is written on the blocks (adapt text color as per block color, black or white)~~
 - ~~Each block changes color at a random time: every X seconds (1 to 5 seconds, randomly , setting), all blocks would change colors randomly~~
 - ~~At begining of a party, a small countdown is displayed: 3...2...1...GO~~
-- ~~Once one player reaches the finish line, party is over. A message is displayed to say "player X won the game" during 2 seconds (setting). A new party starts again with the countdown.
+- ~~Once one player reaches the finish line, party is over. A message is displayed to say "player X won the game" during 2 seconds (setting). A new party starts again with the countdown.~~
 - Since game can switch from windowed, to fullscreen, and be played on different screen sizes, everything must be proportional : block sizes, position of finish line from the right, position of blocks from left, distance between every steps, distance between each blocks vertically~~
 - Keys:
     * ~~If the P button is pressed, the game is paused.~~
