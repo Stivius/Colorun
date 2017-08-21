@@ -1,5 +1,4 @@
 require "rectangle"
-require "color"
 
 Players = {}
 Players.__index = Players
@@ -10,15 +9,16 @@ setmetatable(players, Players)
 local y = 15
 local finishLineCoords
 local playerWinner = nil
+local speed = 20
 
-function Players:addPlayer(color)
-   table.insert(players, {["rectangle"] = Rectangle:create(100, y, 50, 50, color.rgb, color.key)})
+function Players:addPlayer(color, key)
+   table.insert(players, {["rectangle"] = Rectangle:create(50, y, 50, 50), ["color"] = getRgb(color), ["key"] = key, ["speed"] = 20})
    y = y + 70
 end
 
 function Players:reset()
    for i = 1, #players do
-      players[i].rectangle.x = 100
+      players[i].rectangle.x = 50
    end
    playerWinner = nil
 end
@@ -29,9 +29,9 @@ end
 
 function Players:keypressed(key, scancode, isrepeat)
    for i = 1, #players do
-      if key == players[i].rectangle.key then 
-         players[i].rectangle:move(i)
-         if players[i].rectangle:intersect(finishLineCoords) then
+      if key == players[i].key then 
+         players[i].rectangle:moveHorizontally(speed)
+         if players[i].rectangle:intersectLine(finishLineCoords) then
             playerWinner = i
          end
       end
@@ -44,27 +44,32 @@ end
 
 function Players:draw()
    for i = 1, #players do
-      players[i].rectangle:draw(i)
+      players[i].rectangle:draw(i, players[i].color)
    end
 end
 
 function Players:swap()
-   local shuffledColors = shufflePlayersColors(players)
+   local shuffled = shuffleColorsAndKeys(players)
    for i = 1, #players do
-      players[i].rectangle.color = shuffledColors[i].color
-      players[i].rectangle.key = shuffledColors[i].key
+      players[i].color = shuffled[i].color
+      players[i].key = shuffled[i].key
    end
 end
 
-function shufflePlayersColors(players)
-   local params = {unpack(players)}
-   local shuffledPlayers = {}
-   while #params > 0 do
-      local num = math.random(1, #params)
-      table.insert(shuffledPlayers, {["color"] = params[num].rectangle.color, ["key"] = params[num].rectangle.key})
-      table.remove(params, num)
+function shuffleColorsAndKeys(players)
+   local tempPlayers = {unpack(players)}
+   local shuffled = {}
+   while #tempPlayers > 0 do
+      local num = math.random(1, #tempPlayers)
+      table.insert(shuffled, {["color"] = tempPlayers[num].color, ["key"] = tempPlayers[num].key})
+      table.remove(tempPlayers, num)
    end
-   return shuffledPlayers
+   return shuffled
+end
+
+function getRgb(hex)
+    hex = hex:gsub("#","")
+    return {["red"] = tonumber("0x"..hex:sub(1,2)), ["green"] = tonumber("0x"..hex:sub(3,4)), ["blue"] = tonumber("0x"..hex:sub(5,6))}
 end
 
 return players

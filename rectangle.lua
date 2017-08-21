@@ -1,44 +1,40 @@
-require "color"
-
 Rectangle = {}
 Rectangle.__index = Rectangle
 
-local numberFont = love.graphics.newFont(20)
-local text = love.graphics.newText(numberFont)
+local textToDraw = love.graphics.newText(love.graphics.newFont(20))
 
-function Rectangle:create(x, y, width, height, rgb, key)
+function Rectangle:create(x, y, width, height)
 	local rect = {}
-   	setmetatable(rect, Rectangle)
-   	rect.x = x
-   	rect.y = y
-   	rect.width = width
-   	rect.height = height
-   	rect.color = rgb
-   	rect.key = key
-   	rect.speed = 20
+	setmetatable(rect, Rectangle)
+	rect.x = x
+	rect.y = y
+	rect.width = width
+	rect.height = height
 
-   	return rect
+	return rect
 end
 
-function Rectangle:draw(number)
-	love.graphics.setColor(self.color.red, self.color.green, self.color.blue)
+function Rectangle:draw(text, color)
+	love.graphics.setColor(color.red, color.green, color.blue)
    love.graphics.rectangle("fill", self.x, self.y, self.width, self.height)
-   if self.color.red > 128 and self.color.green > 128 and self.color.blue > 128 then
+   if color.red > 128 and color.green > 128 and color.blue > 128 then
       love.graphics.setColor(0, 0, 0)
    else
       love.graphics.setColor(255, 255, 255)
    end
-   text:set(number)
-   love.graphics.draw(text, self.x + ((self.width - text:getWidth())/2), self.y + ((self.height - text:getHeight())/2))
+   textToDraw:set(text)
+   love.graphics.draw(textToDraw, self.x + ((self.width - textToDraw:getWidth())/2), self.y + ((self.height - textToDraw:getHeight())/2))
 end
 
-function Rectangle:move(number)
-	self.x = self.x + self.speed
-end
-
-function Rectangle:intersect(finishLineCoords)
-   if self.x + self.width > finishLineCoords.x1 then
+function Rectangle:intersectLine(lineCoords)
+   local xPos = self.x + self.width
+   if xPos > lineCoords.x1 or xPos > lineCoords.x2 then
       return true
+   else
+      return false
    end
-   return false
+end
+
+function Rectangle:moveHorizontally(xAmount)
+   self.x = self.x + xAmount
 end

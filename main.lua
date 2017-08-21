@@ -1,7 +1,6 @@
 local players = require "players"
 local timers = require "timers"
 
-require "color"
 require "ini_parser"
 require "message"
 
@@ -71,15 +70,15 @@ function love.load()
 	assert(data.colors._size == data.colorKeys._size)
 	assert(data.general.playersCount <= data.colors._size)
 
-	local playersColors = {}
+	local colorsAndKeys = {}
 	for i = 1, data.colors._size do
-		playersColors[i] = Color:create(data.colors["color" .. i], data.colorKeys["colorKey" .. i])
+		colorsAndKeys[i] = {["color"] = data.colors["color" .. i], ["colorKey"] = data.colorKeys["colorKey" .. i]}
 	end
 
     for i = 1, data.general.playersCount do
-    	local num = math.random(1, #playersColors)
-    	players:addPlayer(playersColors[num])
-   		table.remove(playersColors, num)
+    	local num = math.random(1, #colorsAndKeys)
+    	players:addPlayer(colorsAndKeys[num].color, colorsAndKeys[num].colorKey)
+   		table.remove(colorsAndKeys, num)
    	end
 
 	local width, height = love.window.getMode()
