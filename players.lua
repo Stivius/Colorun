@@ -1,5 +1,6 @@
 require "rectangle"
-local timers = require "timers"
+require "utils"
+require "timers"
 
 Players = {}
 Players.__index = Players
@@ -15,7 +16,7 @@ local minSwapTime, maxSwapTime
 local swapTimer
 
 function Players:addPlayer(color, key)
-   table.insert(players, {["rectangle"] = Rectangle:create(50, y, 50, 50), ["color"] = getRgb(color), ["key"] = key, ["speed"] = 20})
+   table.insert(players, {["rectangle"] = Rectangle:create(50, y, 50, 50), ["color"] = getRgb(color), ["key"] = key})
    y = y + 70
 end
 
@@ -56,6 +57,17 @@ function Players:draw()
    end
 end
 
+local function shuffleColorsAndKeys(players)
+   local tempPlayers = {unpack(players)}
+   local shuffled = {}
+   while #tempPlayers > 0 do
+      local num = math.random(1, #tempPlayers)
+      table.insert(shuffled, {["color"] = tempPlayers[num].color, ["key"] = tempPlayers[num].key})
+      table.remove(tempPlayers, num)
+   end
+   return shuffled
+end
+
 function Players:swap()
    local shuffled = shuffleColorsAndKeys(players)
    for i = 1, #players do
@@ -83,22 +95,6 @@ end
 
 function Players:setSwappingTimeRange(minTime , maxTime)
    minSwapTime, maxSwapTime = minTime, maxTime
-end
-
-function shuffleColorsAndKeys(players)
-   local tempPlayers = {unpack(players)}
-   local shuffled = {}
-   while #tempPlayers > 0 do
-      local num = math.random(1, #tempPlayers)
-      table.insert(shuffled, {["color"] = tempPlayers[num].color, ["key"] = tempPlayers[num].key})
-      table.remove(tempPlayers, num)
-   end
-   return shuffled
-end
-
-function getRgb(hex)
-    hex = hex:gsub("#","")
-    return {["red"] = tonumber("0x"..hex:sub(1,2)), ["green"] = tonumber("0x"..hex:sub(3,4)), ["blue"] = tonumber("0x"..hex:sub(5,6))}
 end
 
 return players

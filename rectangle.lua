@@ -14,7 +14,7 @@ end
 
 function Rectangle:draw(color)
 	love.graphics.setColor(color.red, color.green, color.blue)
-   love.graphics.rectangle("fill", self.x, self.y, self.width, self.height)
+	love.graphics.rectangle("fill", self.x, self.y, self.width, self.height)
 end
 
 function Rectangle:intersectLine(lineCoords)

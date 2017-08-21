@@ -3,6 +3,7 @@ local timers = require "timers"
 local messages = require "messages"
 
 require "ini_parser"
+require "utils"
 
 function love.keypressed(key, scancode, isrepeat)
 	if not gamePause then
@@ -53,7 +54,6 @@ end
 
 function love.load()
 	math.randomseed(os.time())
-	love.keyboard.setKeyRepeat(true)
 
 	backgroundColors = {"#b9f9e8", "#b9ddf9", "#f28ca3", "#f3a5cd", "#f9dab9", "#a5bef2", "#8fd1cd", "#e2f0fd", "#f9cab9", "#ffa87f"}
 	backgroundColor = getRgb(backgroundColors[math.random(1, #backgroundColors)])
@@ -82,9 +82,6 @@ function love.load()
     	players:addPlayer(colorsAndKeys[num].color, colorsAndKeys[num].colorKey)
    		table.remove(colorsAndKeys, num)
    	end
-
-
-	infoTextToDraw = love.graphics.newText(love.graphics.newFont(100), "")
 
 	music = love.audio.newSource(data.general.audioFile)
     music:setLooping(true)
