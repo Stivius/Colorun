@@ -1,15 +1,25 @@
 Timers = {}
 Timers.__index = Timers
+Timer = {}
+Timer.__index = Timer
 
 local timers = {}
 setmetatable(timers, Timers)
 
-function Timers:addTimer(name, duration, isSingleShot, callback)
-   timers[name] = {["duration"] = duration, ["isSingleShot"] = isSingleShot, ["callback"] = callback, ["passed"] = 0}
+function Timer:start(name, duration, isSingleShot, callback)
+   local newTimer = {}
+   setmetatable(newTimer, Timer)
+   newTimer.name = name
+   newTimer.duration = duration
+   newTimer.isSingleShot = isSingleShot
+   newTimer.callback = callback
+   newTimer.passed = 0
+   timers[name] = newTimer
+   return newTimer
 end
 
-function Timers:removeTimer(name)
-   timers[name] = nil
+function Timer:stop()
+   timers[self.name] = nil
 end
 
 function Timers:update(dt)
