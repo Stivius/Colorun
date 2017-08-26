@@ -12,7 +12,8 @@ function Rectangle:create(x, y, width, height)
 	return rect
 end
 
-function Rectangle:setSize(y, width, height)
+function Rectangle:setProportions(x, y, width, height)
+	self.x = x
 	self.y = y
 	self.width = width
 	self.height = height

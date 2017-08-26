@@ -63,9 +63,9 @@ function love.update(dt)
 	local width, height = love.window.getMode()
 	timers:update(dt)
 	if windowWidth ~= width or windowHeight ~= height then
+		players:update(playersCount, windowWidth, windowHeight)
 		windowWidth, windowHeight = width, height
 		finishLineCoords = {x1 = width - 50, y1 = 0, x2 = width - 50, y2 = height}
-		players:update(playersCount)
 	end
 end
 
@@ -95,6 +95,7 @@ function love.load()
    	item = menu:addItem({text = playersCount .. " players", actions = {
 	   	clicked = function()
 	   		if item.inEditing then
+	   			-- save it in INI file
 	   			startGame()
 	   			menu:hide()
 	   		end

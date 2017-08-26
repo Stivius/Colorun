@@ -8,6 +8,7 @@ Players.__index = Players
 local players = {}
 setmetatable(players, Players)
 
+local speed = 20
 local playerWinner = nil
 local minSwapTime, maxSwapTime, swapTimer
 
@@ -16,14 +17,16 @@ function Players:addPlayer(_color, _key)
    self:update(#players)
 end
 
-function Players:update(playersCount)
+function Players:update(playersCount, prevWidth, prevHeight)
    width, height = love.window.getMode()
+   prevWidth = prevWidth or width
+   prevHeight = prevHeight or height
    side = math.max(width, height) * 0.0625
    distance = ((height - (side * playersCount)) / playersCount)
-   speed = side * 0.4
    y = distance
    for i = 1, #players do
-      players[i].rectangle:setSize(y, side, side) -- FIXME: add changing for x
+      x =  width - (width * ((prevWidth - players[i].rectangle.x) / prevWidth))
+      players[i].rectangle:setProportions(x, y, side, side)
       y = y + side + (((height - distance) - (side * playersCount)) / playersCount)
    end
 end
