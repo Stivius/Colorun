@@ -9,23 +9,22 @@ local players = {}
 setmetatable(players, Players)
 
 local playerWinner = nil
-local minSwapTime, maxSwapTime
-local swapTimer
+local minSwapTime, maxSwapTime, swapTimer
 
 function Players:addPlayer(_color, _key)
    table.insert(players, {rectangle = Rectangle:create(50), color = getRgb(_color), key = _key})
-   self:update()
+   self:update(#players)
 end
 
-function Players:update(dt)
+function Players:update(playersCount)
    width, height = love.window.getMode()
    side = math.max(width, height) * 0.0625
-   distance = ((height - (side * 4)) / 4) -- FIXME: magic number
+   distance = ((height - (side * playersCount)) / playersCount)
    speed = side * 0.4
    y = distance
    for i = 1, #players do
       players[i].rectangle:setSize(y, side, side) -- FIXME: add changing for x
-      y = y + side + (((height - distance) - (side * 4)) / 4)
+      y = y + side + (((height - distance) - (side * playersCount)) / playersCount)
    end
 end
 
@@ -34,8 +33,8 @@ function Players:winner()
 end
 
 function Players:reset()
-   for i = 1, #players do
-      players[i].rectangle.x = 50
+   for k, _ in ipairs(players) do
+      players[k] = nil
    end
    playerWinner = nil
 end
@@ -68,7 +67,7 @@ function Players:draw()
       else
          love.graphics.setColor(255, 255, 255)
       end
-      local numberToDraw = love.graphics.newText(love.graphics.newFont(20), i)
+      local numberToDraw = love.graphics.newText(love.graphics.newFont(rect.width * 0.4), i)
       love.graphics.draw(numberToDraw, rect.x + ((rect.width - numberToDraw:getWidth())/2), rect.y + ((rect.height - numberToDraw:getHeight())/2))
    end
 end

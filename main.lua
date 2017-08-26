@@ -65,7 +65,7 @@ function love.update(dt)
 	if windowWidth ~= width or windowHeight ~= height then
 		windowWidth, windowHeight = width, height
 		finishLineCoords = {x1 = width - 50, y1 = 0, x2 = width - 50, y2 = height}
-		players:update(dt)
+		players:update(playersCount)
 	end
 end
 
@@ -91,21 +91,11 @@ function love.load()
 	assert(data.colors._size == data.colorKeys._size)
 	assert(playersCount <= data.colors._size)
 
-	local colorsAndKeys = {}
-	for i = 1, data.colors._size do
-		colorsAndKeys[i] = {color = data.colors["color" .. i], colorKey = data.colorKeys["colorKey" .. i]}
-	end
-
-    for i = 1, playersCount do
-    	local num = math.random(1, #colorsAndKeys)
-    	players:addPlayer(colorsAndKeys[num].color, colorsAndKeys[num].colorKey)
-   		table.remove(colorsAndKeys, num)
-   	end
-
    	local item
    	item = menu:addItem({text = playersCount .. " players", actions = {
 	   	clicked = function()
 	   		if item.inEditing then
+	   			startGame()
 	   			menu:hide()
 	   		end
 	   	end, 
@@ -131,8 +121,23 @@ function love.load()
 	startGame()
 end
 
+function initPlayers()
+	local colorsAndKeys = {}
+	for i = 1, data.colors._size do
+		colorsAndKeys[i] = {color = data.colors["color" .. i], colorKey = data.colorKeys["colorKey" .. i]}
+	end
+
+    for i = 1, playersCount do
+    	local num = math.random(1, #colorsAndKeys)
+    	players:addPlayer(colorsAndKeys[num].color, colorsAndKeys[num].colorKey)
+   		table.remove(colorsAndKeys, num)
+   	end
+end
+
 function startGame()
 	players:reset()
+	initPlayers()
+
 	gameFinished = false
 	gameBeingStarted = true
 	countdown = data.general.countdown - 1

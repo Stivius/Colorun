@@ -25,7 +25,6 @@ end
 
 function Rectangle:intersectLine(lineCoords)
    local xPos = self.x + self.width
-   print(lineCoords.x1)
    if xPos > lineCoords.x1 or xPos > lineCoords.x2 then
       return true
    else
