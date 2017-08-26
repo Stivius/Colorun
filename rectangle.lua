@@ -12,6 +12,12 @@ function Rectangle:create(x, y, width, height)
 	return rect
 end
 
+function Rectangle:setSize(y, width, height)
+	self.y = y
+	self.width = width
+	self.height = height
+end
+
 function Rectangle:draw(color)
 	love.graphics.setColor(color.red, color.green, color.blue)
 	love.graphics.rectangle("fill", self.x, self.y, self.width, self.height)
@@ -19,6 +25,7 @@ end
 
 function Rectangle:intersectLine(lineCoords)
    local xPos = self.x + self.width
+   print(lineCoords.x1)
    if xPos > lineCoords.x1 or xPos > lineCoords.x2 then
       return true
    else

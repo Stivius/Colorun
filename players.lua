@@ -8,16 +8,29 @@ Players.__index = Players
 local players = {}
 setmetatable(players, Players)
 
-local y = 15
-local finishLineCoords
 local playerWinner = nil
-local speed = 20
 local minSwapTime, maxSwapTime
 local swapTimer
 
-function Players:addPlayer(color, key)
-   table.insert(players, {["rectangle"] = Rectangle:create(50, y, 50, 50), ["color"] = getRgb(color), ["key"] = key})
-   y = y + 70
+function Players:addPlayer(_color, _key)
+   table.insert(players, {rectangle = Rectangle:create(50), color = getRgb(_color), key = _key})
+   self:update()
+end
+
+function Players:update(dt)
+   width, height = love.window.getMode()
+   side = math.max(width, height) * 0.0625
+   distance = ((height - (side * 4)) / 4) -- FIXME: magic number
+   speed = side * 0.4
+   y = distance
+   for i = 1, #players do
+      players[i].rectangle:setSize(y, side, side) -- FIXME: add changing for x
+      y = y + side + (((height - distance) - (side * 4)) / 4)
+   end
+end
+
+function Players:winner()
+   return playerWinner
 end
 
 function Players:reset()
@@ -31,15 +44,18 @@ function Players:keypressed(key, scancode, isrepeat)
    for i = 1, #players do
       if key == players[i].key then 
          players[i].rectangle:moveHorizontally(speed)
-         if players[i].rectangle:intersectLine(finishLineCoords) then
-            playerWinner = i
-         end
       end
    end
 end
 
-function Players:winner()
-   return playerWinner
+function Players:intersectFinishLine(lineCoords)
+   for i = 1, #players do
+      if players[i].rectangle:intersectLine(lineCoords) then
+         playerWinner = i
+         return true
+      end
+   end
+   return false
 end
 
 function Players:draw()
@@ -61,9 +77,9 @@ local function shuffleColorsAndKeys(players)
    local tempPlayers = {unpack(players)}
    local shuffled = {}
    while #tempPlayers > 0 do
-      local num = math.random(1, #tempPlayers)
-      table.insert(shuffled, {["color"] = tempPlayers[num].color, ["key"] = tempPlayers[num].key})
-      table.remove(tempPlayers, num)
+      local randPlayer = math.random(1, #tempPlayers)
+      table.insert(shuffled, {color = tempPlayers[randPlayer].color, key = tempPlayers[randPlayer].key})
+      table.remove(tempPlayers, randPlayer)
    end
    return shuffled
 end
@@ -87,10 +103,6 @@ end
 
 function Players:stopSwapping()
    swapTimer:stop()
-end
-
-function Players:setFinishLine(coords)
-   finishLineCoords = {["x1"] = coords[1], ["y1"] = coords[2], ["x2"] = coords[3], ["y2"] = coords[4]}
 end
 
 function Players:setSwappingTimeRange(minTime , maxTime)

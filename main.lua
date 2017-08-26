@@ -1,6 +1,7 @@
 local players = require "players"
 local timers = require "timers"
 local messages = require "messages"
+local menu = require "menu"
 
 require "ini_parser"
 require "utils"
@@ -8,11 +9,11 @@ require "utils"
 function love.keypressed(key, scancode, isrepeat)
 	if not gamePause then
 		players:keypressed(key, scancode, isrepeat)
-		local wnr = players:winner()
-		if wnr then
+		if players:intersectFinishLine(finishLineCoords) then
 			finishGame()
 		end
 	end
+	menu:keypressed(key, scancode, isrepeat)
 end
 
 function love.keyreleased(key, scancodep)
@@ -35,7 +36,7 @@ function love.keyreleased(key, scancodep)
     		music:play()
     	end
    	end
-   	if key == "p" and not gameFinished and not gameBeingStarted then
+   	if key == "p" and not gameFinished and not gameBeingStarted and not menu.isShown then
     	gamePause = not gamePause
     	if gamePause then
     		pauseMessage = Message:show("PAUSE", 100, (windowWidth - 300)/2, (windowHeight - 150)/2, 300, 150, getRgb("#000000"))
@@ -45,11 +46,27 @@ function love.keyreleased(key, scancodep)
     		players:startSwapping()
     	end
    	end
+   	if key == "m" and not gameFinished and not gameBeingStarted then
+   		if menu.isShown then
+   			menu:hide()
+   			gamePause = false
+   			players:startSwapping()
+   		else
+   			menu:show()
+   			gamePause = true
+   			players:stopSwapping()
+   		end
+   	end
 end
 
 function love.update(dt)
-	windowWidth, windowHeight = love.window.getMode()
+	local width, height = love.window.getMode()
 	timers:update(dt)
+	if windowWidth ~= width or windowHeight ~= height then
+		windowWidth, windowHeight = width, height
+		finishLineCoords = {x1 = width - 50, y1 = 0, x2 = width - 50, y2 = height}
+		players:update(dt)
+	end
 end
 
 function love.load()
@@ -68,27 +85,46 @@ function love.load()
 
 	countdown = data.general.countdown - 1
 	restartTime = data.general.restartTime
+	playersCount = data.general.playersCount
+	windowWidth, windowHeight = love.window.getMode()
 
 	assert(data.colors._size == data.colorKeys._size)
-	assert(data.general.playersCount <= data.colors._size)
+	assert(playersCount <= data.colors._size)
 
 	local colorsAndKeys = {}
 	for i = 1, data.colors._size do
-		colorsAndKeys[i] = {["color"] = data.colors["color" .. i], ["colorKey"] = data.colorKeys["colorKey" .. i]}
+		colorsAndKeys[i] = {color = data.colors["color" .. i], colorKey = data.colorKeys["colorKey" .. i]}
 	end
 
-    for i = 1, data.general.playersCount do
+    for i = 1, playersCount do
     	local num = math.random(1, #colorsAndKeys)
     	players:addPlayer(colorsAndKeys[num].color, colorsAndKeys[num].colorKey)
    		table.remove(colorsAndKeys, num)
    	end
 
+   	local item
+   	item = menu:addItem({text = playersCount .. " players", actions = {
+	   	clicked = function()
+	   		if item.inEditing then
+	   			menu:hide()
+	   		end
+	   	end, 
+	   	rightChosen = function()
+	   		playersCount = playersCount + 1
+	   		item.text:set(playersCount .. " players")
+	   	end, 
+	   	leftChosen = function()
+	   		playersCount = playersCount - 1
+	   		item.text:set(playersCount .. " players")
+	   	end
+   	}})
+   	menu:addItem({text = "Exit menu", actions = {clicked = function() menu:hide() end}})
+
 	music = love.audio.newSource(data.general.audioFile)
     music:setLooping(true)
     -- music:play()
 
-	finishLineCoords = {750, 0, 750, 600}
-    players:setFinishLine(finishLineCoords)
+	finishLineCoords = {x1 = windowWidth - 50, y1 = 0, x2 = windowWidth - 50, y2 = windowHeight}
     players:setSwappingTimeRange(data.general.minSwapTime, data.general.maxSwapTime)
 
 	gamePause = true
@@ -100,7 +136,6 @@ function startGame()
 	gameFinished = false
 	gameBeingStarted = true
 	countdown = data.general.countdown - 1
-	windowWidth, windowHeight = love.window.getMode()
 
     countdownMessage = Message:show(countdown - 1, 100, (windowWidth - 300)/2, (windowHeight - 150)/2, 300, 150, getRgb("#000000"))
 	countdownTimer = Timer:start("Countdown", 1, false, function()
@@ -138,8 +173,9 @@ function love.draw()
 	love.graphics.setBackgroundColor(backgroundColor.red, backgroundColor.green, backgroundColor.blue)
 	love.graphics.setColor(0, 0, 0)
 	love.graphics.setLineWidth(7)
-	love.graphics.line(finishLineCoords)
+	love.graphics.line(finishLineCoords.x1, finishLineCoords.y1, finishLineCoords.x2, finishLineCoords.y2)
 
+	menu:draw() -- FIXME: draw menu correctly
 	players:draw()
-	messages:draw()
+	messages:draw() -- FIXME: draw messages correctly
 end
