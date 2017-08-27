@@ -10,25 +10,11 @@ setmetatable(players, Players)
 
 local speed = 20
 local playerWinner = nil
-local minSwapTime, maxSwapTime, swapTimer
+local swapTimer
 
 function Players:addPlayer(_color, _key)
    table.insert(players, {rectangle = Rectangle:create(50), color = getRgb(_color), key = _key})
-   self:update(#players)
-end
-
-function Players:update(playersCount, prevWidth, prevHeight)
-   width, height = love.window.getMode()
-   prevWidth = prevWidth or width
-   prevHeight = prevHeight or height
-   side = math.max(width, height) * 0.0625
-   distance = (height / (playersCount + 1)) - side/2
-   y = distance
-   for i = 1, #players do
-      x =  width - (width * ((prevWidth - players[i].rectangle.x) / prevWidth))
-      players[i].rectangle:setProportions(x, y, side, side)
-      y = y + (height / (playersCount + 1))
-   end
+   self:updateProportions(#players)
 end
 
 function Players:winner()
@@ -60,21 +46,6 @@ function Players:intersectFinishLine(lineCoords)
    return false
 end
 
-function Players:draw()
-   for i = 1, #players do
-      local rect = players[i].rectangle
-      local color = players[i].color
-      rect:draw(color)
-      if color.red > 128 and color.green > 128 and color.blue > 128 then
-         love.graphics.setColor(0, 0, 0)
-      else
-         love.graphics.setColor(255, 255, 255)
-      end
-      local numberToDraw = love.graphics.newText(love.graphics.newFont(rect.width * 0.4), i)
-      love.graphics.draw(numberToDraw, rect.x + ((rect.width - numberToDraw:getWidth())/2), rect.y + ((rect.height - numberToDraw:getHeight())/2))
-   end
-end
-
 local function shuffleColorsAndKeys(players)
    local tempPlayers = {unpack(players)}
    local shuffled = {}
@@ -94,7 +65,7 @@ function Players:swap()
    end
 end
 
-function Players:startSwapping()
+function Players:startSwapping(minSwapTime, maxSwapTime)
    local swapTime = math.random(minSwapTime, maxSwapTime)
    swapTimer = Timer:start("SwapRects", swapTime, false, function()
       players:swap()
@@ -107,8 +78,32 @@ function Players:stopSwapping()
    swapTimer:stop()
 end
 
-function Players:setSwappingTimeRange(minTime , maxTime)
-   minSwapTime, maxSwapTime = minTime, maxTime
+function Players:updateProportions(playersCount, prevWidth, prevHeight)
+   local width, height = love.window.getMode()
+   prevWidth = prevWidth or width
+   prevHeight = prevHeight or height
+   local side = math.max(width, height) * 0.0625
+   local y = (height / (playersCount + 1)) - side/2
+   for i = 1, #players do
+      x =  width - (width * ((prevWidth - players[i].rectangle.x) / prevWidth))
+      players[i].rectangle:setProportions(x, y, side, side)
+      y = y + (height / (playersCount + 1))
+   end
+end
+
+function Players:draw()
+   for i = 1, #players do
+      local rect = players[i].rectangle
+      local color = players[i].color
+      rect:draw(color)
+      if color.red > 128 and color.green > 128 and color.blue > 128 then
+         love.graphics.setColor(0, 0, 0)
+      else
+         love.graphics.setColor(255, 255, 255)
+      end
+      local numberToDraw = love.graphics.newText(love.graphics.newFont(rect.width * 0.4), i)
+      love.graphics.draw(numberToDraw, rect.x + ((rect.width - numberToDraw:getWidth())/2), rect.y + ((rect.height - numberToDraw:getHeight())/2))
+   end
 end
 
 return players

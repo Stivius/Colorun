@@ -5,7 +5,6 @@ Menu = {}
 Menu.__index = Menu
 
 local menu = {items = {}, isShown = false,  inEditing = false, currentItem = 1}
-local y = 200
 
 setmetatable(menu, Menu)
 
@@ -13,10 +12,10 @@ function Menu:addItem(item)
    local newItem = {}
    newItem.text = love.graphics.newText(love.graphics.newFont(25), item.text)
    newItem.actions = {clicked = item.actions.clicked, rightChosen = item.actions.rightChosen, leftChosen = item.actions.leftChosen}
-   newItem.rectangle = Rectangle:create(300, y, 200, 50)
+   newItem.rectangle = Rectangle:create()
    newItem.inEditing = false
-   y = y + 75
    table.insert(menu.items, newItem)
+   self:updateProportions(#menu.items)
    return newItem
 end
 
@@ -57,6 +56,18 @@ function Menu:hide()
       menu.isShown = false
       menu.isEditing = false
       menu.currentItem = 1
+   end
+end
+
+function Menu:updateProportions(itemsCount)
+   local width, height = love.window.getMode()
+   local itemWidth = width * 0.25
+   local itemHeight = height * 0.1
+   local y = height / 2 - itemHeight
+   for i = 1, #menu.items do
+      menu.items[i].text:setFont(love.graphics.newFont(itemHeight * 0.5))
+      menu.items[i].rectangle:setProportions((width - itemWidth) / 2, y, itemWidth, itemHeight)
+      y = y + itemHeight + itemHeight * 0.5
    end
 end
 

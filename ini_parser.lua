@@ -27,6 +27,41 @@ function loadSettings(filename)
 	end
 end
 
+function createSettings(filename)
+	local file = love.filesystem.newFile(filename)
+	file:open("a")
+	local defaultSettings = [[
+[General]
+Countdown = 5
+MinSwapTime = 1
+MaxSwapTime = 5
+AudioFile = music.mp3
+PlayersCount = 8
+RestartTime = 5
+
+[ColorKeys]
+ColorKey2 = g
+ColorKey7 = n
+ColorKey4 = k
+ColorKey1 = w
+ColorKey6 = y
+ColorKey3 = b
+ColorKey8 = i
+ColorKey5 = r
+
+[Colors]
+Color7 = #20f1e7
+Color2 = #62c633
+Color1 = #ffffff
+Color4 = #000000
+Color3 = #2353ce
+Color6 = #f2ee21
+Color5 = #d61006
+Color8 = #f01fdf
+]]
+	file:write(defaultSettings)
+end
+
 function saveSettings(filename)
 	love.filesystem.remove(filename)
 	local file = love.filesystem.newFile(filename)

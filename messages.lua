@@ -18,6 +18,7 @@ function Message:show(text, fontSize, x, y, width, height, textColor, background
 	newMessage.id = idCount
    	newMessage.text = love.graphics.newText(love.graphics.newFont(fontSize), text)
    	newMessage.textColor = textColor
+   	newMessage.fontSize = fontSize
 	if backgroundColor then
 		newMessage.backgroundColor = backgroundColor
 	end
@@ -42,6 +43,22 @@ end
 
 function Message:hide()
    	messages[self.id] = nil
+end
+
+function Messages:updateProportions(prevWidth, prevHeight)
+   local width, height = love.window.getMode()
+   prevWidth = prevWidth or width
+   prevHeight = prevHeight or height  
+   for _, message in pairs(messages) do
+   		local fontSize = height * (message.fontSize / prevHeight)
+   	   	local messageWidth = width * (message.background.width / prevWidth)
+   		local messageHeight =  height * (message.background.height / prevHeight)
+   		local x = width * (message.background.x / prevWidth)
+   		local y = height * (message.background.y / prevHeight)
+   		message.fontSize = fontSize
+   		message.text:setFont(love.graphics.newFont(fontSize))
+    	message.background:setProportions(x, y, messageWidth, messageHeight)
+   end
 end
 
 function Messages:draw()

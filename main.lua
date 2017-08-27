@@ -16,7 +16,7 @@ function love.keypressed(key, scancode, isrepeat)
 	menu:keypressed(key, scancode, isrepeat)
 end
 
-function love.keyreleased(key, scancodep)
+function love.keyreleased(key, scancode)
 	if key == "f" then
     	if not love.window.getFullscreen() then
     		beforeFullscreenWidth, beforeFullscreenHeight = love.window.getMode()
@@ -43,14 +43,14 @@ function love.keyreleased(key, scancodep)
     		players:stopSwapping()
     	else
     		pauseMessage:hide()
-    		players:startSwapping()
+    		players:startSwapping(data.general.minSwapTime, data.general.maxSwapTime)
     	end
    	end
    	if key == "m" and not gameFinished and not gameBeingStarted then
    		if menu.isShown and not menu.inEditing then
    			menu:hide()
    			gamePause = false
-   			players:startSwapping()
+   			players:startSwapping(data.general.minSwapTime, data.general.maxSwapTime)
    		else
    			menu:show()
    			gamePause = true
@@ -60,12 +60,14 @@ function love.keyreleased(key, scancodep)
 end
 
 function love.update(dt)
-	local width, height = love.window.getMode()
+	local newWidth, newHeight = love.window.getMode()
 	timers:update(dt)
-	if windowWidth ~= width or windowHeight ~= height then
-		players:update(data.general.playersCount, windowWidth, windowHeight)
-		windowWidth, windowHeight = width, height
-		finishLineCoords = {x1 = width - 50, y1 = 0, x2 = width - 50, y2 = height}
+	if windowWidth ~= newWidth or windowHeight ~= newHeight then
+		players:updateProportions(data.general.playersCount, windowWidth, windowHeight)
+		messages:updateProportions(windowWidth, windowHeight)
+		menu:updateProportions(#menu.items)
+		windowWidth, windowHeight = newWidth, newHeight
+		finishLineCoords = {x1 = newWidth - 50, y1 = 0, x2 = newWidth - 50, y2 = newHeight}
 	end
 end
 
@@ -80,6 +82,10 @@ function love.load()
 			backgroundColor = getRgb(backgroundColors[math.random(1, #backgroundColors)])
 		end
 	end)
+
+	if not love.filesystem.exists("settings.ini") then
+		createSettings("settings.ini")
+	end
 
     loadSettings("settings.ini")
 
@@ -119,7 +125,6 @@ function love.load()
     -- music:play()
 
 	finishLineCoords = {x1 = windowWidth - 50, y1 = 0, x2 = windowWidth - 50, y2 = windowHeight}
-    players:setSwappingTimeRange(data.general.minSwapTime, data.general.maxSwapTime)
 
 	gamePause = true
 	startGame()
@@ -154,7 +159,7 @@ function startGame()
 			gamePause = false
 			countdownMessage:hide()
 			countdownTimer:stop()
-			players:startSwapping()
+			players:startSwapping(data.general.minSwapTime, data.general.maxSwapTime)
 		else
 			if countdown - 1 == 0 then
 				countdownMessage:setText("GO")
@@ -184,7 +189,7 @@ function love.draw()
 	love.graphics.setLineWidth(7)
 	love.graphics.line(finishLineCoords.x1, finishLineCoords.y1, finishLineCoords.x2, finishLineCoords.y2)
 
-	menu:draw() -- FIXME: draw menu correctly
 	players:draw()
-	messages:draw() -- FIXME: draw messages correctly
+	menu:draw()
+	messages:draw()
 end
