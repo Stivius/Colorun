@@ -63,7 +63,7 @@ function love.update(dt)
 	local width, height = love.window.getMode()
 	timers:update(dt)
 	if windowWidth ~= width or windowHeight ~= height then
-		players:update(playersCount, windowWidth, windowHeight)
+		players:update(data.general.playersCount, windowWidth, windowHeight)
 		windowWidth, windowHeight = width, height
 		finishLineCoords = {x1 = width - 50, y1 = 0, x2 = width - 50, y2 = height}
 	end
@@ -81,32 +81,35 @@ function love.load()
 		end
 	end)
 
-    initSettings()
+    loadSettings("settings.ini")
 
 	countdown = data.general.countdown - 1
 	restartTime = data.general.restartTime
-	playersCount = data.general.playersCount
 	windowWidth, windowHeight = love.window.getMode()
 
 	assert(data.colors._size == data.colorKeys._size)
-	assert(playersCount <= data.colors._size)
+	assert(data.general.playersCount <= data.colors._size)
 
    	local item
-   	item = menu:addItem({text = playersCount .. " players", actions = {
+   	item = menu:addItem({text = data.general.playersCount .. " players", actions = {
 	   	clicked = function()
 	   		if item.inEditing then
-	   			-- save it in INI file
+	   			saveSettings("settings.ini")
 	   			startGame()
 	   			menu:hide()
 	   		end
 	   	end, 
 	   	rightChosen = function()
-	   		playersCount = playersCount + 1
-	   		item.text:set(playersCount .. " players")
+	   		if data.general.playersCount < data.colors._size then
+	   			data.general.playersCount = data.general.playersCount + 1
+	   		end
+	   		item.text:set(data.general.playersCount .. " players")
 	   	end, 
 	   	leftChosen = function()
-	   		playersCount = playersCount - 1
-	   		item.text:set(playersCount .. " players")
+	   		if data.general.playersCount > 1 then
+	   			data.general.playersCount = data.general.playersCount - 1
+	   		end
+	   		item.text:set(data.general.playersCount .. " players")
 	   	end
    	}})
    	menu:addItem({text = "Exit menu", actions = {clicked = function() menu:hide() end}})
@@ -128,7 +131,7 @@ function initPlayers()
 		colorsAndKeys[i] = {color = data.colors["color" .. i], colorKey = data.colorKeys["colorKey" .. i]}
 	end
 
-    for i = 1, playersCount do
+    for i = 1, data.general.playersCount do
     	local num = math.random(1, #colorsAndKeys)
     	players:addPlayer(colorsAndKeys[num].color, colorsAndKeys[num].colorKey)
    		table.remove(colorsAndKeys, num)
