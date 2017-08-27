@@ -47,7 +47,7 @@ function love.keyreleased(key, scancodep)
     	end
    	end
    	if key == "m" and not gameFinished and not gameBeingStarted then
-   		if menu.isShown then
+   		if menu.isShown and not menu.inEditing then
    			menu:hide()
    			gamePause = false
    			players:startSwapping()

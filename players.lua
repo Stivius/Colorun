@@ -22,12 +22,12 @@ function Players:update(playersCount, prevWidth, prevHeight)
    prevWidth = prevWidth or width
    prevHeight = prevHeight or height
    side = math.max(width, height) * 0.0625
-   distance = ((height - (side * playersCount)) / playersCount)
+   distance = (height / (playersCount + 1)) - side/2
    y = distance
    for i = 1, #players do
       x =  width - (width * ((prevWidth - players[i].rectangle.x) / prevWidth))
       players[i].rectangle:setProportions(x, y, side, side)
-      y = y + side + (((height - distance) - (side * playersCount)) / playersCount)
+      y = y + (height / (playersCount + 1))
    end
 end
 

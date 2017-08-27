@@ -4,7 +4,7 @@ require "utils"
 Menu = {}
 Menu.__index = Menu
 
-local menu = {items = {}, isShown = false, currentItem = 1}
+local menu = {items = {}, isShown = false,  inEditing = false, currentItem = 1}
 local y = 200
 
 setmetatable(menu, Menu)
@@ -37,6 +37,7 @@ function Menu:keypressed(key, scancode, isrepeat)
          itemActions.clicked()
          if menu.isShown then
             menu.items[menu.currentItem].inEditing = not menu.items[menu.currentItem].inEditing
+            menu.inEditing = not menu.inEditing
          end
       end
    end
@@ -54,6 +55,7 @@ function Menu:hide()
          menu.items[i].inEditing = false
       end
       menu.isShown = false
+      menu.isEditing = false
       menu.currentItem = 1
    end
 end
