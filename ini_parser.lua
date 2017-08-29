@@ -10,11 +10,11 @@ function loadSettings(filename)
 		 	local tempSection = line:match("[[](.+)[]]")
 
 		 	if tempSection ~= nil then
-		 		section = tempSection:sub(1,1):lower() .. tempSection:sub(2)
+		 		section = tempSection:gsub("^(%u)(.+)", function(l, w) return l:lower() .. w end)
 		 		data[section] = {}
 		 		data[section]["_size"] = 0
 		 	elseif key ~= nil and value ~= nil then
-		 		key = key:sub(1,1):lower() .. key:sub(2)
+		 		key = key:gsub("^(%u)(.+)", function(l, w) return l:lower() .. w end)
 		 		convertedValue = tonumber(value)
 		 		if convertedValue ~= nil then
 		 			data[section][key] = convertedValue
@@ -67,11 +67,11 @@ function saveSettings(filename)
 	local file = love.filesystem.newFile(filename)
 	file:open("a")
 	for section, values in pairs(data) do
-		section = section:sub(1,1):upper() .. section:sub(2)
+		section = section:gsub("^(%u)(.+)", function(l, w) return l:upper() .. w end)
 		file:write("[" .. section .. "]" .. "\n")
 		for key, value in pairs(values) do
 			if key:byte(1) ~= string.byte("_") then
-				key = key:sub(1,1):upper() .. key:sub(2)
+				key = key:gsub("^(%u)(.+)", function(l, w) return l:upper() .. w end)
 				file:write(key .. " = " .. value .. "\n")
 			end
 		end

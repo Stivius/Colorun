@@ -43,14 +43,14 @@ function love.keyreleased(key, scancode)
     		players:stopSwapping()
     	else
     		pauseMessage:hide()
-    		players:startSwapping(data.general.minSwapTime, data.general.maxSwapTime)
+    		players:startSwapping(data.general.minSwapTime, data.general.maxSwapTime, colorsAndKeys)
     	end
    	end
    	if key == "m" and not gameFinished and not gameBeingStarted then
    		if menu.isShown and not menu.inEditing then
    			menu:hide()
    			gamePause = false
-   			players:startSwapping(data.general.minSwapTime, data.general.maxSwapTime)
+   			players:startSwapping(data.general.minSwapTime, data.general.maxSwapTime, colorsAndKeys)
    		else
    			menu:show()
    			gamePause = true
@@ -92,6 +92,7 @@ function love.load()
 	countdown = data.general.countdown - 1
 	restartTime = data.general.restartTime
 	windowWidth, windowHeight = love.window.getMode()
+	colorsAndKeys = getColorsAndKeys()
 
 	assert(data.colors._size == data.colorKeys._size)
 	assert(data.general.playersCount <= data.colors._size)
@@ -130,16 +131,20 @@ function love.load()
 	startGame()
 end
 
-function initPlayers()
+function getColorsAndKeys()
 	local colorsAndKeys = {}
 	for i = 1, data.colors._size do
 		colorsAndKeys[i] = {color = data.colors["color" .. i], colorKey = data.colorKeys["colorKey" .. i]}
 	end
+	return colorsAndKeys
+end
 
+function initPlayers()
+	local tempColorsAndKeys = getColorsAndKeys()
     for i = 1, data.general.playersCount do
-    	local num = math.random(1, #colorsAndKeys)
-    	players:addPlayer(colorsAndKeys[num].color, colorsAndKeys[num].colorKey)
-   		table.remove(colorsAndKeys, num)
+    	local num = math.random(1, #tempColorsAndKeys)
+    	players:addPlayer(tempColorsAndKeys[num].color, tempColorsAndKeys[num].colorKey)
+   		table.remove(tempColorsAndKeys, num)
    	end
 end
 
@@ -159,7 +164,7 @@ function startGame()
 			gamePause = false
 			countdownMessage:hide()
 			countdownTimer:stop()
-			players:startSwapping(data.general.minSwapTime, data.general.maxSwapTime)
+			players:startSwapping(data.general.minSwapTime, data.general.maxSwapTime, colorsAndKeys)
 		else
 			if countdown - 1 == 0 then
 				countdownMessage:setText("GO")

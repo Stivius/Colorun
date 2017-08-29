@@ -46,29 +46,40 @@ function Players:intersectFinishLine(lineCoords)
    return false
 end
 
-local function shuffleColorsAndKeys(players)
-   local tempPlayers = {unpack(players)}
-   local shuffled = {}
-   while #tempPlayers > 0 do
-      local randPlayer = math.random(1, #tempPlayers)
-      table.insert(shuffled, {color = tempPlayers[randPlayer].color, key = tempPlayers[randPlayer].key})
-      table.remove(tempPlayers, randPlayer)
+
+function makeTempColorsAndKeys(t)
+   local colorsAndKeys = {}
+   for _, v in pairs(t) do
+      table.insert(colorsAndKeys, {color = getRgb(v.color), key = v.colorKey})
    end
-   return shuffled
+   return colorsAndKeys
 end
 
-function Players:swap()
-   local shuffled = shuffleColorsAndKeys(players)
+function colorsEquals(color1, color2)
+   if color1.red == color2.red and color1.green == color2.green and color1.blue == color2.blue then
+      return true
+   else
+      return false
+   end
+end
+
+function Players:swap(colorsAndKeys)
+   local tempColorsAndKeys = makeTempColorsAndKeys(colorsAndKeys)
    for i = 1, #players do
-      players[i].color = shuffled[i].color
-      players[i].key = shuffled[i].key
+      local randNum = math.random(1, #tempColorsAndKeys)
+      while #tempColorsAndKeys > 1 and colorsEquals(players[i].color, tempColorsAndKeys[randNum].color) do
+         randNum = math.random(1, #tempColorsAndKeys)
+      end
+      players[i].color = tempColorsAndKeys[randNum].color
+      players[i].key = tempColorsAndKeys[randNum].key
+      table.remove(tempColorsAndKeys, randNum)
    end
 end
 
-function Players:startSwapping(minSwapTime, maxSwapTime)
+function Players:startSwapping(minSwapTime, maxSwapTime, colorsAndKeys)
    local swapTime = math.random(minSwapTime, maxSwapTime)
    swapTimer = Timer:start("SwapRects", swapTime, false, function()
-      players:swap()
+      players:swap(colorsAndKeys)
       swapTime = math.random(minSwapTime, maxSwapTime)
       swapTimer.duration = swapTime
    end)
@@ -83,11 +94,15 @@ function Players:updateProportions(playersCount, prevWidth, prevHeight)
    prevWidth = prevWidth or width
    prevHeight = prevHeight or height
    local side = math.max(width, height) * 0.0625
-   local y = (height / (playersCount + 1)) - side/2
+   local distance = (height / (playersCount + 1)) - side/2
+   if playersCount > 1 then
+      distance = math.min(distance, (height - distance * 2 - (side * playersCount)) / (playersCount - 1))
+   end
+   local y = distance
    for i = 1, #players do
       x =  width - (width * ((prevWidth - players[i].rectangle.x) / prevWidth))
       players[i].rectangle:setProportions(x, y, side, side)
-      y = y + (height / (playersCount + 1))
+      y = y + side + (height - distance * 2 - (side * playersCount)) / (playersCount - 1)
    end
 end
 
